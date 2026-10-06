@@ -1,22 +1,45 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useToast } from '../hooks/useToast';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent } from '../components/ui/Card';
-import { Users, AlertCircle } from 'lucide-react';
+import { UserPlus, AlertCircle } from 'lucide-react';
 
-export default function LoginPage() {
+export default function RegisterPage() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  const [fieldErrors, setFieldErrors] = useState<{
+    name?: string;
+    email?: string;
+    password?: string;
+    confirmPassword?: string;
+  }>({});
   const [generalError, setGeneralError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+
+  const { register } = useAuth();
+  const toast = useToast();
   const navigate = useNavigate();
 
   const validate = () => {
-    const errors: { email?: string; password?: string } = {};
+    const errors: {
+      name?: string;
+      email?: string;
+      password?: string;
+      confirmPassword?: string;
+    } = {};
+
+    if (!name.trim()) {
+      errors.name = 'Full name is required';
+    } else if (name.trim().length < 2) {
+      errors.name = 'Full name must be at least 2 characters';
+    }
+
     if (!email.trim()) {
       errors.email = 'Email address is required';
     } else {
@@ -30,6 +53,12 @@ export default function LoginPage() {
       errors.password = 'Password is required';
     } else if (password.length < 6) {
       errors.password = 'Password must be at least 6 characters';
+    }
+
+    if (!confirmPassword) {
+      errors.confirmPassword = 'Confirm password is required';
+    } else if (confirmPassword !== password) {
+      errors.confirmPassword = 'Passwords do not match';
     }
 
     setFieldErrors(errors);
@@ -46,21 +75,20 @@ export default function LoginPage() {
 
     try {
       setIsLoading(true);
-      await login({ email: email.trim(), password });
+      await register({
+        name: name.trim(),
+        email: email.trim(),
+        password,
+      });
+
+      toast.success('Registration successful! Welcome to EMS.');
       navigate('/dashboard');
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Failed to sign in. Please check your email and password.';
+      const msg = err.response?.data?.message || 'Registration failed. Please try again.';
       setGeneralError(msg);
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleQuickLogin = (demoEmail: string, demoPass: string) => {
-    setEmail(demoEmail);
-    setPassword(demoPass);
-    setFieldErrors({});
-    setGeneralError(null);
   };
 
   return (
@@ -68,10 +96,10 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-indigo-600 text-white mb-3 shadow-md shadow-indigo-200">
-            <Users className="w-6 h-6" />
+            <UserPlus className="w-6 h-6" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">Employee Management</h1>
-          <p className="text-sm text-slate-500 mt-1">Sign in to manage employees and departments</p>
+          <h1 className="text-2xl font-bold text-slate-900">Create an Account</h1>
+          <p className="text-sm text-slate-500 mt-1">Register as a viewer user to explore the EMS portal</p>
         </div>
 
         <Card>
@@ -84,6 +112,20 @@ export default function LoginPage() {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+              <Input
+                label="Full name"
+                type="text"
+                id="name"
+                placeholder="John Doe"
+                value={name}
+                error={fieldErrors.name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (fieldErrors.name) setFieldErrors({ ...fieldErrors, name: '' });
+                }}
+                required
+              />
+
               <Input
                 label="Email address"
                 type="email"
@@ -102,7 +144,7 @@ export default function LoginPage() {
                 label="Password"
                 type="password"
                 id="password"
-                placeholder="••••••••"
+                placeholder="At least 6 characters"
                 value={password}
                 error={fieldErrors.password}
                 onChange={(e) => {
@@ -112,42 +154,32 @@ export default function LoginPage() {
                 required
               />
 
+              <Input
+                label="Confirm Password"
+                type="password"
+                id="confirmPassword"
+                placeholder="Re-enter password"
+                value={confirmPassword}
+                error={fieldErrors.confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  if (fieldErrors.confirmPassword) setFieldErrors({ ...fieldErrors, confirmPassword: '' });
+                }}
+                required
+              />
+
               <Button type="submit" className="w-full mt-2" isLoading={isLoading}>
-                Sign In
+                Create Account
               </Button>
             </form>
 
-            <div className="mt-4 text-center">
+            <div className="mt-6 pt-4 border-t border-slate-100 text-center">
               <p className="text-xs text-slate-500">
-                Don't have an account?{' '}
-                <Link to="/register" className="font-semibold text-indigo-600 hover:text-indigo-700 hover:underline">
-                  Create one now
+                Already have an account?{' '}
+                <Link to="/login" className="font-semibold text-indigo-600 hover:text-indigo-700 hover:underline">
+                  Sign in here
                 </Link>
               </p>
-            </div>
-
-            <div className="mt-6 pt-6 border-t border-slate-100">
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 text-center mb-3">
-                Quick Demo Credentials
-              </p>
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <button
-                  type="button"
-                  onClick={() => handleQuickLogin('admin@example.com', 'admin123')}
-                  className="p-2 border border-slate-200 rounded-lg text-left hover:bg-slate-50 hover:border-slate-300 transition-colors"
-                >
-                  <p className="font-semibold text-slate-800">Admin Role</p>
-                  <p className="text-slate-500 text-[11px] truncate">admin@example.com</p>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleQuickLogin('viewer@example.com', 'viewer123')}
-                  className="p-2 border border-slate-200 rounded-lg text-left hover:bg-slate-50 hover:border-slate-300 transition-colors"
-                >
-                  <p className="font-semibold text-slate-800">Viewer Role</p>
-                  <p className="text-slate-500 text-[11px] truncate">viewer@example.com</p>
-                </button>
-              </div>
             </div>
           </CardContent>
         </Card>

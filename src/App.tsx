@@ -6,6 +6,7 @@ import { AppLayout } from './components/layout/AppLayout';
 import { LoadingSpinner } from './components/shared/LoadingSpinner';
 
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import EmployeeListPage from './pages/employees/EmployeeListPage';
 import EmployeeDetailPage from './pages/employees/EmployeeDetailPage';
@@ -57,6 +58,14 @@ export function App() {
               element={
                 <PublicRoute>
                   <LoginPage />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                <PublicRoute>
+                  <RegisterPage />
                 </PublicRoute>
               }
             />

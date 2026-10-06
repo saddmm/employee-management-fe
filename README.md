@@ -2,7 +2,7 @@
 
 Aplikasi antarmuka web modern, responsif, dan kaya fitur untuk Employee Management System. Dibangun menggunakan **React 19**, **TypeScript**, **Vite**, **Tailwind CSS**, dan **TanStack Query (React Query v5)**.
 
-Aplikasi ini terhubung langsung ke RESTful API backend [Employee Management Backend](../employee-management-be).
+Aplikasi ini terhubung langsung ke RESTful API backend [Employee Management Backend](https://github.com/saddmm/employee-management-be).
 
 ---
 
@@ -13,7 +13,7 @@ Aplikasi ini terhubung langsung ke RESTful API backend [Employee Management Back
 | 🌐 **Live Demo Frontend** | [https://employee-management-fe-production.up.railway.app/](https://employee-management-fe-production.up.railway.app/) | Aplikasi web yang telah di-deploy |
 | 🚀 **Live Demo Backend API** | [http://employee-management-be-production-a8fc.up.railway.app/](http://employee-management-be-production-a8fc.up.railway.app/) | Base URL backend API |
 | 📖 **Dokumentasi Swagger API** | [http://employee-management-be-production-a8fc.up.railway.app/api-documentation/](http://employee-management-be-production-a8fc.up.railway.app/swagger/) | Swagger OpenAPI UI Backend |
-| 📂 **Repositori Backend** | [../employee-management-be](../employee-management-be) | Repositori Go Fiber + MySQL |
+| 📂 **Repositori Backend** | [https://github.com/saddmm/employee-management-be](https://github.com/saddmm/employee-management-be) | Repositori Go Fiber + MySQL |
 
 ---
 

@@ -25,18 +25,53 @@ export default function EmployeeCreatePage() {
     joined_at: new Date().toISOString().split('T')[0],
   });
 
-  const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [generalError, setGeneralError] = useState<string | null>(null);
+
+  const validateForm = () => {
+    const errors: Record<string, string> = {};
+
+    if (!formData.name.trim()) {
+      errors.name = 'Nama lengkap wajib diisi';
+    } else if (formData.name.trim().length < 2) {
+      errors.name = 'Nama lengkap minimal 2 karakter';
+    }
+
+    if (!formData.email.trim()) {
+      errors.email = 'Email wajib diisi';
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email.trim())) {
+        errors.email = 'Format email tidak valid (contoh: user@company.com)';
+      }
+    }
+
+    if (!formData.position.trim()) {
+      errors.position = 'Jabatan / Posisi wajib diisi';
+    }
+
+    if (formData.phone && formData.phone.trim().length > 20) {
+      errors.phone = 'Nomor telepon maksimal 20 karakter';
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setGeneralError(null);
+
+    if (!validateForm()) {
+      return;
+    }
 
     try {
       await createEmployee({
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone || undefined,
-        position: formData.position,
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim() || undefined,
+        position: formData.position.trim(),
         department_id: formData.department_id ? Number(formData.department_id) : null,
         status: formData.status,
         joined_at: formData.joined_at || undefined,
@@ -46,8 +81,12 @@ export default function EmployeeCreatePage() {
       navigate('/employees');
     } catch (err: any) {
       const msg = err.response?.data?.message || 'Gagal menambahkan karyawan';
-      setError(msg);
-      toast.error(msg);
+      const serverErrors = err.response?.data?.errors;
+      if (Array.isArray(serverErrors) && serverErrors.length > 0) {
+        setGeneralError(serverErrors.join(', '));
+      } else {
+        setGeneralError(msg);
+      }
     }
   };
 
@@ -75,19 +114,23 @@ export default function EmployeeCreatePage() {
         </CardHeader>
 
         <CardContent>
-          {error && (
+          {generalError && (
             <div className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">
-              {error}
+              {generalError}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5" noValidate>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 label="Full Name *"
                 id="name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                error={fieldErrors.name}
+                onChange={(e) => {
+                  setFormData({ ...formData, name: e.target.value });
+                  if (fieldErrors.name) setFieldErrors({ ...fieldErrors, name: '' });
+                }}
                 placeholder="Jane Doe"
                 required
               />
@@ -97,7 +140,11 @@ export default function EmployeeCreatePage() {
                 id="email"
                 type="email"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                error={fieldErrors.email}
+                onChange={(e) => {
+                  setFormData({ ...formData, email: e.target.value });
+                  if (fieldErrors.email) setFieldErrors({ ...fieldErrors, email: '' });
+                }}
                 placeholder="jane.doe@company.com"
                 required
               />
@@ -106,7 +153,11 @@ export default function EmployeeCreatePage() {
                 label="Phone Number"
                 id="phone"
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                error={fieldErrors.phone}
+                onChange={(e) => {
+                  setFormData({ ...formData, phone: e.target.value });
+                  if (fieldErrors.phone) setFieldErrors({ ...fieldErrors, phone: '' });
+                }}
                 placeholder="+1 555-0199"
               />
 
@@ -114,7 +165,11 @@ export default function EmployeeCreatePage() {
                 label="Job Position / Role *"
                 id="position"
                 value={formData.position}
-                onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+                error={fieldErrors.position}
+                onChange={(e) => {
+                  setFormData({ ...formData, position: e.target.value });
+                  if (fieldErrors.position) setFieldErrors({ ...fieldErrors, position: '' });
+                }}
                 placeholder="Senior Backend Engineer"
                 required
               />

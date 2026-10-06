@@ -18,6 +18,7 @@ export default function DepartmentListPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingDept, setEditingDept] = useState<Department | null>(null);
   const [formData, setFormData] = useState({ name: '', description: '' });
+  const [fieldErrors, setFieldErrors] = useState<{ name?: string }>({});
   const [formError, setFormError] = useState<string | null>(null);
 
   const [deleteTarget, setDeleteTarget] = useState<Department | null>(null);
@@ -25,6 +26,7 @@ export default function DepartmentListPage() {
   const handleOpenCreate = () => {
     setEditingDept(null);
     setFormData({ name: '', description: '' });
+    setFieldErrors({});
     setFormError(null);
     setModalOpen(true);
   };
@@ -32,6 +34,7 @@ export default function DepartmentListPage() {
   const handleOpenEdit = (dept: Department) => {
     setEditingDept(dept);
     setFormData({ name: dept.name, description: dept.description || '' });
+    setFieldErrors({});
     setFormError(null);
     setModalOpen(true);
   };
@@ -41,23 +44,29 @@ export default function DepartmentListPage() {
     setFormError(null);
 
     if (!formData.name.trim()) {
-      setFormError('Department name is required');
+      setFieldErrors({ name: 'Nama departemen wajib diisi' });
       return;
     }
 
+    if (formData.name.trim().length < 2) {
+      setFieldErrors({ name: 'Nama departemen minimal 2 karakter' });
+      return;
+    }
+
+    setFieldErrors({});
+
     try {
       if (editingDept) {
-        await updateDepartment({ id: editingDept.id, payload: formData });
+        await updateDepartment({ id: editingDept.id, payload: { name: formData.name.trim(), description: formData.description.trim() } });
         toast.success('Departemen berhasil diperbarui!');
       } else {
-        await createDepartment(formData);
+        await createDepartment({ name: formData.name.trim(), description: formData.description.trim() });
         toast.success('Departemen baru berhasil dibuat!');
       }
       setModalOpen(false);
     } catch (err: any) {
       const msg = err.response?.data?.message || 'Gagal menyimpan departemen';
       setFormError(msg);
-      toast.error(msg);
     }
   };
 
@@ -164,7 +173,7 @@ export default function DepartmentListPage() {
         onClose={() => setModalOpen(false)}
         title={editingDept ? 'Edit Department' : 'Create Department'}
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           {formError && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
               {formError}
@@ -172,10 +181,14 @@ export default function DepartmentListPage() {
           )}
 
           <Input
-            label="Department Name"
+            label="Department Name *"
             id="dept-name"
             value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            error={fieldErrors.name}
+            onChange={(e) => {
+              setFormData({ ...formData, name: e.target.value });
+              if (fieldErrors.name) setFieldErrors({});
+            }}
             placeholder="e.g. Engineering"
             required
           />

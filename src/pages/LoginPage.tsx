@@ -9,27 +9,48 @@ import { Users, AlertCircle } from 'lucide-react';
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
+  const [generalError, setGeneralError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  const validate = () => {
+    const errors: { email?: string; password?: string } = {};
+    if (!email.trim()) {
+      errors.email = 'Email wajib diisi';
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email.trim())) {
+        errors.email = 'Format email tidak valid';
+      }
+    }
+
+    if (!password) {
+      errors.password = 'Password wajib diisi';
+    } else if (password.length < 6) {
+      errors.password = 'Password minimal 6 karakter';
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setGeneralError(null);
 
-    if (!email || !password) {
-      setError('Please fill in both email and password');
+    if (!validate()) {
       return;
     }
 
     try {
       setIsLoading(true);
-      await login({ email, password });
+      await login({ email: email.trim(), password });
       navigate('/dashboard');
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Failed to sign in. Please verify your credentials.';
-      setError(msg);
+      const msg = err.response?.data?.message || 'Gagal masuk. Periksa kembali email dan password Anda.';
+      setGeneralError(msg);
     } finally {
       setIsLoading(false);
     }
@@ -38,6 +59,8 @@ export default function LoginPage() {
   const handleQuickLogin = (demoEmail: string, demoPass: string) => {
     setEmail(demoEmail);
     setPassword(demoPass);
+    setFieldErrors({});
+    setGeneralError(null);
   };
 
   return (
@@ -53,21 +76,25 @@ export default function LoginPage() {
 
         <Card>
           <CardContent className="pt-6">
-            {error && (
+            {generalError && (
               <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-sm text-red-700">
                 <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{error}</span>
+                <span>{generalError}</span>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4" noValidate>
               <Input
                 label="Email address"
                 type="email"
                 id="email"
                 placeholder="name@company.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                error={fieldErrors.email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (fieldErrors.email) setFieldErrors({ ...fieldErrors, email: '' });
+                }}
                 required
               />
 
@@ -77,7 +104,11 @@ export default function LoginPage() {
                 id="password"
                 placeholder="••••••••"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                error={fieldErrors.password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (fieldErrors.password) setFieldErrors({ ...fieldErrors, password: '' });
+                }}
                 required
               />
 

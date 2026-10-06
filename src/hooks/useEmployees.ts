@@ -26,15 +26,17 @@ export function useEmployees(params?: EmployeeFilterParams) {
   const updateMutation = useMutation({
     mutationFn: ({ id, payload }: { id: number; payload: UpdateEmployeePayload }) =>
       employeeApi.update(id, payload),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: EMPLOYEE_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ['employee', variables.id] });
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => employeeApi.delete(id),
-    onSuccess: () => {
+    onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: EMPLOYEE_QUERY_KEY });
+      queryClient.removeQueries({ queryKey: ['employee', id] });
     },
   });
 
@@ -58,5 +60,6 @@ export function useEmployeeDetail(id: number | null) {
     queryKey: ['employee', id],
     queryFn: () => (id ? employeeApi.getById(id) : null),
     enabled: !!id,
+    staleTime: 0, // Always fetch fresh data so update form always has the latest info
   });
 }

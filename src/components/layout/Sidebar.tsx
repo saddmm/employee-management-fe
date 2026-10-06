@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Users, Building2, Terminal, X } from 'lucide-react';
+import { LayoutDashboard, Users, Building2, X } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 interface SidebarProps {
@@ -11,7 +11,6 @@ const navItems = [
   { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
   { name: 'Employees', path: '/employees', icon: Users },
   { name: 'Departments', path: '/departments', icon: Building2 },
-  { name: 'API Docs', path: '/api-documentation', icon: Terminal },
 ];
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
@@ -70,13 +69,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             );
           })}
         </nav>
-
-        <div className="p-4 border-t border-slate-200">
-          <div className="rounded-lg bg-slate-50 p-3 text-xs text-slate-500">
-            <p className="font-semibold text-slate-700">EMS v1.0</p>
-            <p>Go Fiber + React TS</p>
-          </div>
-        </div>
       </aside>
     </>
   );

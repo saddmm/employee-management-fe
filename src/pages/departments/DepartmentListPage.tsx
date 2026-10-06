@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useDepartments } from '../../hooks/useDepartments';
 import { useAuth } from '../../hooks/useAuth';
+import { useToast } from '../../hooks/useToast';
 import type { Department } from '../../types';
 import { DataTable, type Column } from '../../components/shared/DataTable';
 import { Button } from '../../components/ui/Button';
@@ -12,6 +13,7 @@ import { Plus, Edit2, Trash2, Building2 } from 'lucide-react';
 export default function DepartmentListPage() {
   const { departments, isLoading, createDepartment, updateDepartment, deleteDepartment, isCreating, isUpdating, isDeleting } = useDepartments();
   const { isAdmin } = useAuth();
+  const toast = useToast();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingDept, setEditingDept] = useState<Department | null>(null);
@@ -46,12 +48,16 @@ export default function DepartmentListPage() {
     try {
       if (editingDept) {
         await updateDepartment({ id: editingDept.id, payload: formData });
+        toast.success('Departemen berhasil diperbarui!');
       } else {
         await createDepartment(formData);
+        toast.success('Departemen baru berhasil dibuat!');
       }
       setModalOpen(false);
     } catch (err: any) {
-      setFormError(err.response?.data?.message || 'Failed to save department');
+      const msg = err.response?.data?.message || 'Gagal menyimpan departemen';
+      setFormError(msg);
+      toast.error(msg);
     }
   };
 
@@ -59,9 +65,11 @@ export default function DepartmentListPage() {
     if (!deleteTarget) return;
     try {
       await deleteDepartment(deleteTarget.id);
+      toast.success(`Departemen "${deleteTarget.name}" berhasil dihapus!`);
       setDeleteTarget(null);
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to delete department');
+      const msg = err.response?.data?.message || 'Gagal menghapus departemen';
+      toast.error(msg);
     }
   };
 

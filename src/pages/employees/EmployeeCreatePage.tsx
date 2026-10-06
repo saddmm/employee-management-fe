@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useEmployees } from '../../hooks/useEmployees';
 import { useDepartments } from '../../hooks/useDepartments';
+import { useToast } from '../../hooks/useToast';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
@@ -12,6 +13,7 @@ export default function EmployeeCreatePage() {
   const navigate = useNavigate();
   const { createEmployee, isCreating } = useEmployees();
   const { departments } = useDepartments();
+  const toast = useToast();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -40,9 +42,12 @@ export default function EmployeeCreatePage() {
         joined_at: formData.joined_at || undefined,
       });
 
+      toast.success('Karyawan baru berhasil ditambahkan!');
       navigate('/employees');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create employee');
+      const msg = err.response?.data?.message || 'Gagal menambahkan karyawan';
+      setError(msg);
+      toast.error(msg);
     }
   };
 

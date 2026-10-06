@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEmployeeDetail, useEmployees } from '../../hooks/useEmployees';
 import { useDepartments } from '../../hooks/useDepartments';
+import { useToast } from '../../hooks/useToast';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
@@ -15,6 +16,7 @@ export default function EmployeeEditPage() {
   const { data: employee, isLoading: isFetching } = useEmployeeDetail(id ? Number(id) : null);
   const { updateEmployee, isUpdating } = useEmployees();
   const { departments } = useDepartments();
+  const toast = useToast();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -61,9 +63,13 @@ export default function EmployeeEditPage() {
         },
       });
 
-      navigate(`/employees/${id}`);
+      toast.success('Data karyawan berhasil diperbarui!');
+      // Langsung kembali ke halaman employees setelah edit berhasil
+      navigate('/employees');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to update employee');
+      const msg = err.response?.data?.message || 'Gagal memperbarui data karyawan';
+      setError(msg);
+      toast.error(msg);
     }
   };
 
@@ -74,7 +80,7 @@ export default function EmployeeEditPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex items-center gap-3">
-        <Button variant="outline" size="sm" onClick={() => navigate(`/employees/${id}`)} className="gap-2">
+        <Button variant="outline" size="sm" onClick={() => navigate('/employees')} className="gap-2">
           <ArrowLeft className="h-4 w-4" />
           Cancel
         </Button>
@@ -180,7 +186,7 @@ export default function EmployeeEditPage() {
             </div>
 
             <div className="mt-8 flex justify-end gap-3 pt-4 border-t border-slate-100">
-              <Button type="button" variant="outline" onClick={() => navigate(`/employees/${id}`)}>
+              <Button type="button" variant="outline" onClick={() => navigate('/employees')}>
                 Cancel
               </Button>
               <Button type="submit" isLoading={isUpdating}>

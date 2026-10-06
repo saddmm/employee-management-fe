@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { ToastProvider } from './context/ToastContext';
 import { useAuth } from './hooks/useAuth';
 import { AppLayout } from './components/layout/AppLayout';
 import { LoadingSpinner } from './components/shared/LoadingSpinner';
@@ -11,7 +12,6 @@ import EmployeeDetailPage from './pages/employees/EmployeeDetailPage';
 import EmployeeCreatePage from './pages/employees/EmployeeCreatePage';
 import EmployeeEditPage from './pages/employees/EmployeeEditPage';
 import DepartmentListPage from './pages/departments/DepartmentListPage';
-import ApiDocPage from './pages/ApiDocPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 function ProtectedLayout() {
@@ -48,33 +48,34 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 
 export function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route
-            path="/login"
-            element={
-              <PublicRoute>
-                <LoginPage />
-              </PublicRoute>
-            }
-          />
+    <ToastProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route
+              path="/login"
+              element={
+                <PublicRoute>
+                  <LoginPage />
+                </PublicRoute>
+              }
+            />
 
-          <Route element={<ProtectedLayout />}>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/employees" element={<EmployeeListPage />} />
-            <Route path="/employees/new" element={<EmployeeCreatePage />} />
-            <Route path="/employees/:id" element={<EmployeeDetailPage />} />
-            <Route path="/employees/:id/edit" element={<EmployeeEditPage />} />
-            <Route path="/departments" element={<DepartmentListPage />} />
-            <Route path="/api-documentation" element={<ApiDocPage />} />
-          </Route>
+            <Route element={<ProtectedLayout />}>
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/employees" element={<EmployeeListPage />} />
+              <Route path="/employees/new" element={<EmployeeCreatePage />} />
+              <Route path="/employees/:id" element={<EmployeeDetailPage />} />
+              <Route path="/employees/:id/edit" element={<EmployeeEditPage />} />
+              <Route path="/departments" element={<DepartmentListPage />} />
+            </Route>
 
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </ToastProvider>
   );
 }
 

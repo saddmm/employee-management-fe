@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useEmployees } from '../../hooks/useEmployees';
 import { useDepartments } from '../../hooks/useDepartments';
 import { useAuth } from '../../hooks/useAuth';
+import { useToast } from '../../hooks/useToast';
 import { employeeApi } from '../../api/employees';
 import type { Employee } from '../../types';
 import { DataTable, type Column } from '../../components/shared/DataTable';
@@ -25,6 +26,7 @@ export default function EmployeeListPage() {
   const navigate = useNavigate();
   const { isAdmin } = useAuth();
   const { departments } = useDepartments();
+  const toast = useToast();
 
   // Search, filter, sorting, pagination state
   const [searchTerm, setSearchTerm] = useState('');
@@ -86,8 +88,9 @@ export default function EmployeeListPage() {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
+      toast.success('File CSV berhasil diunduh!');
     } catch {
-      alert('Failed to export employees CSV');
+      toast.error('Gagal mengunduh file CSV');
     } finally {
       setIsExporting(false);
     }
@@ -97,9 +100,11 @@ export default function EmployeeListPage() {
     if (!deleteTarget) return;
     try {
       await deleteEmployee(deleteTarget.id);
+      toast.success(`Karyawan "${deleteTarget.name}" berhasil dihapus!`);
       setDeleteTarget(null);
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to delete employee');
+      const msg = err.response?.data?.message || 'Gagal menghapus karyawan';
+      toast.error(msg);
     }
   };
 

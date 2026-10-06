@@ -88,9 +88,9 @@ export default function EmployeeListPage() {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      toast.success('File CSV berhasil diunduh!');
+      toast.success('CSV file downloaded successfully!');
     } catch {
-      toast.error('Gagal mengunduh file CSV');
+      toast.error('Failed to download CSV file');
     } finally {
       setIsExporting(false);
     }
@@ -100,10 +100,10 @@ export default function EmployeeListPage() {
     if (!deleteTarget) return;
     try {
       await deleteEmployee(deleteTarget.id);
-      toast.success(`Karyawan "${deleteTarget.name}" berhasil dihapus!`);
+      toast.success(`Employee "${deleteTarget.name}" deleted successfully!`);
       setDeleteTarget(null);
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Gagal menghapus karyawan';
+      const msg = err.response?.data?.message || 'Failed to delete employee';
       toast.error(msg);
     }
   };

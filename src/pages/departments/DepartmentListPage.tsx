@@ -44,12 +44,12 @@ export default function DepartmentListPage() {
     setFormError(null);
 
     if (!formData.name.trim()) {
-      setFieldErrors({ name: 'Nama departemen wajib diisi' });
+      setFieldErrors({ name: 'Department name is required' });
       return;
     }
 
     if (formData.name.trim().length < 2) {
-      setFieldErrors({ name: 'Nama departemen minimal 2 karakter' });
+      setFieldErrors({ name: 'Department name must be at least 2 characters' });
       return;
     }
 
@@ -58,14 +58,14 @@ export default function DepartmentListPage() {
     try {
       if (editingDept) {
         await updateDepartment({ id: editingDept.id, payload: { name: formData.name.trim(), description: formData.description.trim() } });
-        toast.success('Departemen berhasil diperbarui!');
+        toast.success('Department updated successfully!');
       } else {
         await createDepartment({ name: formData.name.trim(), description: formData.description.trim() });
-        toast.success('Departemen baru berhasil dibuat!');
+        toast.success('Department created successfully!');
       }
       setModalOpen(false);
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Gagal menyimpan departemen';
+      const msg = err.response?.data?.message || 'Failed to save department';
       setFormError(msg);
     }
   };
@@ -74,10 +74,10 @@ export default function DepartmentListPage() {
     if (!deleteTarget) return;
     try {
       await deleteDepartment(deleteTarget.id);
-      toast.success(`Departemen "${deleteTarget.name}" berhasil dihapus!`);
+      toast.success(`Department "${deleteTarget.name}" deleted successfully!`);
       setDeleteTarget(null);
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Gagal menghapus departemen';
+      const msg = err.response?.data?.message || 'Failed to delete department';
       toast.error(msg);
     }
   };

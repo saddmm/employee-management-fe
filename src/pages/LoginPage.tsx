@@ -18,18 +18,18 @@ export default function LoginPage() {
   const validate = () => {
     const errors: { email?: string; password?: string } = {};
     if (!email.trim()) {
-      errors.email = 'Email wajib diisi';
+      errors.email = 'Email address is required';
     } else {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email.trim())) {
-        errors.email = 'Format email tidak valid';
+        errors.email = 'Invalid email address format';
       }
     }
 
     if (!password) {
-      errors.password = 'Password wajib diisi';
+      errors.password = 'Password is required';
     } else if (password.length < 6) {
-      errors.password = 'Password minimal 6 karakter';
+      errors.password = 'Password must be at least 6 characters';
     }
 
     setFieldErrors(errors);
@@ -49,7 +49,7 @@ export default function LoginPage() {
       await login({ email: email.trim(), password });
       navigate('/dashboard');
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Gagal masuk. Periksa kembali email dan password Anda.';
+      const msg = err.response?.data?.message || 'Failed to sign in. Please check your email and password.';
       setGeneralError(msg);
     } finally {
       setIsLoading(false);

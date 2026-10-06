@@ -51,26 +51,26 @@ export default function EmployeeEditPage() {
     const errors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
-      errors.name = 'Nama lengkap wajib diisi';
+      errors.name = 'Full name is required';
     } else if (formData.name.trim().length < 2) {
-      errors.name = 'Nama lengkap minimal 2 karakter';
+      errors.name = 'Full name must be at least 2 characters';
     }
 
     if (!formData.email.trim()) {
-      errors.email = 'Email wajib diisi';
+      errors.email = 'Email address is required';
     } else {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(formData.email.trim())) {
-        errors.email = 'Format email tidak valid (contoh: user@company.com)';
+        errors.email = 'Invalid email address format (e.g. user@company.com)';
       }
     }
 
     if (!formData.position.trim()) {
-      errors.position = 'Jabatan / Posisi wajib diisi';
+      errors.position = 'Job position is required';
     }
 
     if (formData.phone && formData.phone.trim().length > 20) {
-      errors.phone = 'Nomor telepon maksimal 20 karakter';
+      errors.phone = 'Phone number cannot exceed 20 characters';
     }
 
     setFieldErrors(errors);
@@ -100,10 +100,10 @@ export default function EmployeeEditPage() {
         },
       });
 
-      toast.success('Data karyawan berhasil diperbarui!');
+      toast.success('Employee updated successfully!');
       navigate('/employees');
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Gagal memperbarui data karyawan';
+      const msg = err.response?.data?.message || 'Failed to update employee';
       const serverErrors = err.response?.data?.errors;
       if (Array.isArray(serverErrors) && serverErrors.length > 0) {
         setGeneralError(serverErrors.join(', '));
